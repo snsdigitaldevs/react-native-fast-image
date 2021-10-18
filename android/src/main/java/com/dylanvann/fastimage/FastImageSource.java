@@ -58,10 +58,17 @@ public class FastImageSource extends ImageSource {
         mUri = super.getUri();
 
         if (mUri == null || TextUtils.isEmpty(mUri.toString())) {
-            Uri localUri = FileProvider.getUriForFile(context,
-                    context.getApplicationContext().getPackageName() + ".provider",
-                    new File(source));
-            mUri = localUri;
+            try {
+                Uri localUri = FileProvider.getUriForFile(context,
+                        context.getApplicationContext().getPackageName() + ".provider",
+                        new File(source));
+                mUri = localUri;
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (!TextUtils.isEmpty(super.getSource())) {
+                    mUri = Uri.parse(super.getSource());
+                }
+            }
         }
 
         if (isResource() && TextUtils.isEmpty(mUri.toString())) {
