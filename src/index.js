@@ -109,6 +109,9 @@ FastImage.defaultProps = {
     resizeMode: FastImage.resizeMode.cover,
 }
 
+FastImage.getCachePath = source =>
+    FastImageViewNativeModule.getCachePath(source)
+
 const FastImageView = requireNativeComponent('FastImageView', FastImage, {
     nativeOnly: {
         onFastImageLoadStart: true,
