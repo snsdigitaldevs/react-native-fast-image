@@ -197,7 +197,6 @@ interface FastImageStaticProperties {
     priority: typeof priority
     cacheControl: typeof cacheControl
     preload: (sources: Source[]) => void
-    getCachePath: (source: Source) => Promise<string>
 }
 
 const FastImage: React.ComponentType<FastImageProps> &
@@ -217,9 +216,6 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
 })
-
-FastImage.getCachePath = source =>
-    FastImageViewNativeModule.getCachePath(source)
 
 // Types of requireNativeComponent are not correct.
 const FastImageView = (requireNativeComponent as any)(

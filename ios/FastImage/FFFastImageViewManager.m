@@ -34,21 +34,5 @@ RCT_EXPORT_METHOD(preload:(nonnull NSArray<FFFastImageSource *> *)sources)
     [[SDWebImagePrefetcher sharedImagePrefetcher] prefetchURLs:urls];
 }
 
-RCT_EXPORT_METHOD(getCachePath:(nonnull FFFastImageSource *)source
-                   withResolver:(RCTPromiseResolveBlock)resolve
-                    andRejecter:(RCTPromiseRejectBlock)reject)
-{
-     SDWebImageManager *imageManager = [SDWebImageManager sharedManager];
-     NSString *key = [imageManager cacheKeyForURL:source.url];
-     BOOL isCached = [[SDImageCache sharedImageCache] diskImageDataExistsWithKey:key];
-
-     if (isCached) {
-         NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:key];
-         resolve(cachePath);
-     } else {
-         resolve([NSNull null]);
-     }
-}
-
 @end
 
