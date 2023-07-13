@@ -39,14 +39,35 @@ RCT_EXPORT_METHOD(getCachePath:(nonnull FFFastImageSource *)source
                     andRejecter:(RCTPromiseRejectBlock)reject)
 {
      SDWebImageManager *imageManager = [SDWebImageManager sharedManager];
-     NSString *key = [imageManager cacheKeyForURL:source.url];
-     BOOL isCached = [[SDImageCache sharedImageCache] diskImageDataExistsWithKey:key];
-
+     NSString *cacheKey = [imageManager cacheKeyForURL:source.url];
+     BOOL isCached = [[SDImageCache sharedImageCache] diskImageDataExistsWithKey:cacheKey];
+     NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:cacheKey];
      if (isCached) {
-         NSString *cachePath = [[SDImageCache sharedImageCache] cachePathForKey:key];
          resolve(cachePath);
      } else {
-         resolve([NSNull null]);
+       // set options
+         SDWebImageOptions options = 0;
+         options |= SDWebImageRetryFailed;
+         switch (source.priority) {
+            case FFFPriorityLow:
+                options |= SDWebImageLowPriority;
+                break;
+            case FFFPriorityNormal:
+                // Priority is normal by default.
+                break;
+            case FFFPriorityHigh:
+                options |= SDWebImageHighPriority;
+                break;
+         }
+         [imageManager loadImageWithURL:source.url options:options progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
+            if (error) {
+                resolve([NSNull null]);
+                return;
+            }
+            [[SDImageCache sharedImageCache] storeImage:image forKey:cacheKey completion:^{
+                resolve(cachePath);
+            }];
+         }];
      }
 }
 
